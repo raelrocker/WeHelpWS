@@ -19,3 +19,16 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Lumen framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+
+## Instalação PHP
+
+Baixe o PHP 5.6.25 (VC11 x86 Non Thread Safe) no site http://windows.php.net/download#php-5.6.
+Para instalar no windows siga este tutorial https://igorcandido.wordpress.com/2011/08/27/tutorial-instalando-apache-php-mysql-phpmyadmin-parte-2/.
+O exemplo é com uma versão anterior do PHP, mas o processo é o mesmo. Não é necessário instalar o Apache. Para rodar o servidor imbutido do PHP execute no prompt: php -S localhost:8000
+
+## Atualizar bibliotecas
+
+Após clonar o repositório, execute o composer para baixar as bibliotecas utilizadas no projeto.
+Execute no prompt: composer update
+
+
