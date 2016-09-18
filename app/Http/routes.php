@@ -15,3 +15,9 @@
 $app->get('/', function () use ($app) {
     return "WE HELP ";
 });
+
+$app->get('pessoas', 'PessoasController@all');
+$app->get('pessoas/{id}', 'PessoasController@get');
+$app->post('pessoas', 'PessoasController@add');
+$app->put('pessoas/{id}', 'PessoasController@put');
+$app->delete('pessoas/{id}', 'PessoasController@remove');
