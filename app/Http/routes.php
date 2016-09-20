@@ -16,8 +16,8 @@ $app->get('/', function () use ($app) {
     return "WE HELP ";
 });
 
-$app->get('pessoas', 'PessoasController@all');
-$app->get('pessoas/{id}', 'PessoasController@get');
-$app->post('pessoas', 'PessoasController@add');
-$app->put('pessoas/{id}', 'PessoasController@put');
-$app->delete('pessoas/{id}', 'PessoasController@remove');
+$app->get('api/pessoas', 'PessoasController@all');
+$app->get('api/pessoas/{id}', 'PessoasController@get');
+$app->post('api/pessoas', 'PessoasController@add');
+$app->put('api/pessoas/{id}', 'PessoasController@put');
+//$app->delete('api/pessoas/{id}', 'PessoasController@remove');
