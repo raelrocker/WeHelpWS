@@ -16,8 +16,14 @@ $app->get('/', function () use ($app) {
     return "WE HELP ";
 });
 
+
+/*Pessoas*/
 $app->get('api/pessoas', 'PessoasController@all');
 $app->get('api/pessoas/{id}', 'PessoasController@get');
 $app->post('api/pessoas', 'PessoasController@add');
 $app->put('api/pessoas/{id}', 'PessoasController@put');
-//$app->delete('api/pessoas/{id}', 'PessoasController@remove');
+/*ONGS*/
+$app->get('api/ongs', 'OngsController@all');
+$app->get('api/ongs/{id}', 'OngsController@get');
+$app->post('api/ongs', 'OngsController@add');
+$app->put('api/ongs/{id}', 'OngsController@put');

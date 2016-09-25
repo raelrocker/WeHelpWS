@@ -9,7 +9,7 @@ class CreatePessoasTable extends Migration
     public function up()
     {
         Schema::create('Pessoas', function(Blueprint $table) {
-            $table->increments('pessoa_id');
+            $table->increments('id');
             $table->string('nome', 50);
             $table->integer('cpf')->unique();
             $table->binary('foto');

@@ -28,7 +28,13 @@ class Usuario extends Model {
 	// Relationships
 	public function pessoa()
 	{
-	    return $this->belongsTo('App\Models\Pessoa', 'pessoa_id', 'pessoa_id');
+	    return $this->belongsTo('App\Models\Pessoa');
+	}
+
+	// Relationships
+	public function ong()
+	{
+		return $this->belongsTo('App\Models\Ong');
 	}
 
 }
