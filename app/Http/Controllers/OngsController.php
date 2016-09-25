@@ -1,30 +1,29 @@
 <?php namespace App\Http\Controllers;
 
-use App\Models\Pessoa;
+use App\Models\Ong;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Mockery\CountValidator\Exception;
 
 
-class PessoasController extends Controller {
+class OngsController extends Controller {
 
-    const MODEL = "App\Models\Pessoa";
+    const MODEL = "App\Models\Ong";
 
     use RESTActions;
 
     public function add(Request $request) {
         try {
             $input = $request->all();
-            $this->validate($request, Pessoa::$rules, Pessoa::$messages);
+            $this->validate($request, Ong::$rules, Ong::$messages);
             $this->validate($request, Usuario::$rules, Usuario::$messages);
             DB::beginTransaction();
-            $pessoa = Pessoa::create($input);
+            $ong = Ong::create($input);
             $usuario = Usuario::create($input);
-            $pessoa->usuario()->save($usuario);
+            $ong->usuario()->save($usuario);
             DB::commit();
-            //$data = ['pessoa' => $pessoa->toArray(), 'usuario' => $pessoa->usuario->toArray()];
-            $data = Pessoa::with('usuario')->find($pessoa->id);
+            $data = Ong::with('usuario')->find($ong->id);
             return response()->json($data, $this->statusCodes['created']);
         } catch (Exception $ex) {
             return $this->respond('erro', ['message' => $ex->getMessage()]);
@@ -34,11 +33,11 @@ class PessoasController extends Controller {
     public function get($id)
     {
         try {
-            $pessoa = Pessoa::with('usuario')->find($id);
-            if(is_null($pessoa)){
+            $ong = Ong::with('usuario')->find($id);
+            if(is_null($ong)){
                 return $this->respond('not_found');
             }
-            return $this->respond('done', $pessoa);
+            return $this->respond('done', $ong);
         } catch (Exception $ex) {
             return $this->respond('erro', $ex->getMessage());
         }
@@ -47,8 +46,8 @@ class PessoasController extends Controller {
     public function all()
     {
         try {
-            $p = Pessoa::with('usuario');
-            return $this->respond('done', $p->get());
+            $ong = Ong::with('usuario');
+            return $this->respond('done', $ong->get());
         } catch (Exception $ex) {
             return $this->respond('erro', $ex->getMessage());
         }
@@ -59,7 +58,7 @@ class PessoasController extends Controller {
         try {
             $m = self::MODEL;
             $rules = $m::$rules;
-            $rules['cpf'] = $rules['cpf'] . ',cnpj,' . $id;
+            $rules['cnpj'] = $rules['cnpj'] . ',cnpj,' . $id;
             $this->validate($request, $rules, $m::$messages);
             $model = $m::find($id);
             if (is_null($model)) {

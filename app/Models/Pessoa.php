@@ -8,8 +8,6 @@ class Pessoa extends Model {
 
 	protected $dates = [];
 
-	protected $primaryKey = "pessoa_id";
-
 	public static $rules = [
 		'nome' => 'required',
 		'cpf' => 'required|max:11',
@@ -28,7 +26,7 @@ class Pessoa extends Model {
 	// Relacionamentos
 	public function usuario()
 	{
-		return $this->hasOne('App\Models\Usuario', 'pessoa_id', 'pessoa_id');
+		return $this->hasOne('App\Models\Usuario', 'pessoa_id', 'id');
 	}
 
 }
