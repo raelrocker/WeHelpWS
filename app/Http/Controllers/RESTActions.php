@@ -1,4 +1,6 @@
-<?php namespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Mockery\CountValidator\Exception;
@@ -14,20 +16,20 @@ trait RESTActions {
         'not_found' => 404,
         'conflict' => 409,
         'permissions' => 401,
-        'erro' => 500
+        'error' => 500
     ];
 
-    public function all()
+    public function index()
     {
         try {
             $m = self::MODEL;
             return $this->respond('done', $m::all());
         } catch (Exception $ex) {
-            return $this->respond('erro', $ex->getMessage());
+            return $this->respond('error', $ex->getMessage());
         }
     }
 
-    public function get($id)
+    public function show($id)
     {
         try {
             $m = self::MODEL;
@@ -37,22 +39,23 @@ trait RESTActions {
             }
             return $this->respond('done', $model);
         } catch (Exception $ex) {
-            return $this->respond('erro', $ex->getMessage());
+            return $this->respond('error', $ex->getMessage());
         }
     }
 
-    public function add(Request $request)
+    public function store(Request $request)
     {
         try {
             $m = self::MODEL;
             $this->validate($request, $m::$rules, $m::$messages);
             return $this->respond('created', $m::create($request->all()));
         } catch (Exception $ex) {
-            return $this->respond('erro', $ex->getMessage());
+            return $this->respond('error', $ex->getMessage());
         }
     }
 
-    public function put(Request $request, $id)
+
+    public function update(Request $request, $id)
     {
         try {
             $m = self::MODEL;
@@ -64,11 +67,11 @@ trait RESTActions {
             $model->update($request->all());
             return $this->respond('done', $model);
         } catch (Exception $ex) {
-            return $this->respond('erro', $ex->getMessage());
+            return $this->respond('error', $ex->getMessage());
         }
     }
 
-    public function remove($id)
+    public function destroy($id)
     {
         try {
             $m = self::MODEL;
@@ -78,7 +81,7 @@ trait RESTActions {
             $m::destroy($id);
             return $this->respond('removed');
         } catch (Exception $ex) {
-            return $this->respond('erro', $ex->getMessage());
+            return $this->respond('error', $ex->getMessage());
         }
     }
 

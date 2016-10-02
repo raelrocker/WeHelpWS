@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:api');
+// Login
+Route::post('login', 'DefaultController@authenticate');
+Route::post('auth/refresh', 'DefaultController@refreshToken');
+Route::post('pessoas', 'PessoaController@store');
+
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::resource('pessoas', 'PessoaController', ['except' => ['store', 'destroy']]);
+});
