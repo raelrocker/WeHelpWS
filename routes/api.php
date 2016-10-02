@@ -18,7 +18,9 @@ use Illuminate\Support\Facades\Auth;
 Route::post('login', 'DefaultController@authenticate');
 Route::post('auth/refresh', 'DefaultController@refreshToken');
 Route::post('pessoas', 'PessoaController@store');
+Route::post('ongs', 'OngController@store');
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('pessoas', 'PessoaController', ['except' => ['store', 'destroy']]);
+    Route::resource('ongs', 'OngController', ['except' => ['store', 'destroy']]);
 });
