@@ -1,40 +1,54 @@
-<?php namespace App\Models;
+<?php
 
-use Illuminate\Database\Eloquent\Model;
+namespace App\Models;
 
-class Usuario extends Model {
+use Laravel\Passport\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-	protected $fillable = ['ong_id', 'pessoa_id', 'email', 'senha'];
-
-    protected $primaryKey = "email";
+class Usuario extends Authenticatable
+{
+    use HasApiTokens, Notifiable;
 
     public $incrementing = false;
 
-	protected $hidden = ['senha'];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'email', 'password', 'pessoa_id'
+    ];
 
-	protected $dates = [];
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'remember_token',
+        'password'
+    ];
 
-	public static $rules = [
-		'email' => 'required|email',
-		'senha' => 'required'
-	];
+    public static $rules = [
+        'email' => 'required|email',
+        'password' => 'required'
+    ];
 
     public static $messages = [
         'email.required' => 'Informe o email',
         'email.email'    => 'E-mail inválido',
-        'senha.required' => 'Informe a senha'
+        'password.required' => 'Informe a senha'
     ];
 
-	// Relationships
-	public function pessoa()
-	{
-	    return $this->belongsTo('App\Models\Pessoa');
-	}
+    // Relationships
+    /*
+    public function pessoa()
+    {
+        return $this->belongsTo('App\Models\Pessoa');
+    }*/
 
-	// Relationships
-	public function ong()
-	{
-		return $this->belongsTo('App\Models\Ong');
-	}
+
 
 }
