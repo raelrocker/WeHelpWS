@@ -32,13 +32,14 @@ class Usuario extends Authenticatable
     ];
 
     public static $rules = [
-        'email' => 'required|email',
+        'email' => 'required|email|unique:usuarios',
         'password' => 'required'
     ];
 
     public static $messages = [
         'email.required' => 'Informe o email',
         'email.email'    => 'E-mail inválido',
+        'email.unique'    => 'E-mail já cadastrado',
         'password.required' => 'Informe a senha'
     ];
 

@@ -91,17 +91,4 @@ class PessoaController extends Controller
             return $this->respond('erro', $ex->getMessage());
         }
     }
-
-    public function login(Request $request)
-    {
-        $input = $request->all();
-
-        if (Auth::once(['email' => $input['email'], 'password' =>  $input['password']])) {
-            $usuario = Auth::user();
-            return response()->json(['token' => $usuario->createToken('Token Name')->accessToken]);
-        } else {
-            return bcrypt($input['password']);
-        }
-    }
-
 }
