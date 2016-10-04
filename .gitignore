@@ -9,3 +9,5 @@ Homestead.yaml
 /vendor
 .env
 /.idea
+/nbproject/private/
+/nbproject
