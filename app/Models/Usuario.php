@@ -44,11 +44,21 @@ class Usuario extends Authenticatable
     ];
 
     // Relationships
-    /*
     public function pessoa()
     {
         return $this->belongsTo('App\Models\Pessoa');
-    }*/
+    }
+
+    public function ong()
+    {
+        return $this->belongsTo('App\Models\Ong');
+    }
+
+    public function eventos()
+    {
+        return $this->hasMany('App\Models\Evento');
+    }
+
 
 
 

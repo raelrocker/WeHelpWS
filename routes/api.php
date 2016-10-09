@@ -24,4 +24,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('pessoas', 'PessoaController', ['except' => ['store', 'destroy']]);
     Route::resource('ongs', 'OngController', ['except' => ['store', 'destroy']]);
     Route::resource('categorias', 'CategoriaController', ['except' => ['destroy']]);
+    Route::resource('eventos', 'EventoController', ['except' => ['destroy']]);
 });

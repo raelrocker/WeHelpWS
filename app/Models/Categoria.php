@@ -20,7 +20,10 @@ class Categoria extends Model
     ];
 
     // Relacionamentos
-
+    public function categoria()
+    {
+        return $this->belongsTo('App\Models\Evento', 'categoria_id');
+    }
     
 
 }
