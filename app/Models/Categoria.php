@@ -22,7 +22,7 @@ class Categoria extends Model
     // Relacionamentos
     public function categoria()
     {
-        return $this->belongsTo('App\Models\Evento', 'categoria_id');
+        return $this->belongsTo('App\Models\Categoria', 'categoria_id');
     }
     
 

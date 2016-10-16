@@ -19,7 +19,10 @@ class Evento extends Model
         'lng' => 'required',
         'descricao' => 'required',
         'data_inicio' => 'required',
-        'data_fim' => 'required'
+        'data_fim' => 'required',
+        'usuario_id' => 'required',
+        'categoria_id' => 'required',
+        'cep' => 'required'
     ];
     public static $messages = [
         'categoria_id.required'    => 'Informe a categoria',
@@ -33,7 +36,10 @@ class Evento extends Model
         'lng.required'    => 'Informe a longitude',
         'descricao.required'    => 'Informe a descrição',
         'data_inicio.required'    => 'Informe a data e hora do início',
-        'data_fim.required'    => 'Informe a data e hora do fim'
+        'data_fim.required'    => 'Informe a data e hora do fim',
+        'usuario_id.required'    => 'Informe o id do usuário',
+        'categoria_id.required'    => 'Informe o id da categoria',
+        'cep.required'    => 'Informe o CEP'
     ];
 
     public function categoria()
@@ -44,5 +50,10 @@ class Evento extends Model
     public function usuario()
     {
         return $this->belongsTo('App\Models\Usuario', 'usuario_id');
+    }
+
+    public function requisitos()
+    {
+        return $this->hasMany('App\Models\Requisito');
     }
 }

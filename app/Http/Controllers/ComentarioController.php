@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use App\Http\Requests;
-use App\Models\Categoria;
+use App\Models\Comentario;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class CategoriaController extends Controller
+class ComentarioController extends Controller
 {
-    const MODEL = "App\Models\Categoria";
-
+    const MODEL = "App\Models\Comentario";
     use RESTActions;
-    
 }

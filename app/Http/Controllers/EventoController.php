@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Evento;
+use App\Models\Requisito;
 use Illuminate\Foundation\Auth\User;
 use App\Http\Requests;
 use App\Models\Pessoa;
@@ -30,9 +31,19 @@ class EventoController extends Controller
             DB::beginTransaction();
             // salva pessoa
             $evento = Evento::create($input);
+
+            if (isset($input['requisitos']))
+            {
+                for ($i = 0; $i < count($input['requisitos']); $i++) {
+                    $input['requisitos'][$i]['evento_id'] = $evento->id;
+                    $requisito = Requisito::create($input['requisitos'][$i]);
+                    $evento->requisitos()->save($requisito);
+                }
+            }
+
             // commit nas alterações
             DB::commit();
-            $data = Evento::with(['usuario', 'categoria'])->find($evento->id);
+            $data = Evento::with(['usuario', 'categoria', 'requisitos'])->find($evento->id);
             return response()->json($data, $this->statusCodes['created']);
         } catch (Exception $ex) {
             DB::rollback();
