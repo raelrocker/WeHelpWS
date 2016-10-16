@@ -23,4 +23,11 @@ class Requisito extends Model
     {
         return $this->belongsTo('App\Models\Evento', 'evento_id');
     }
+
+    public function usuarios()
+    {
+        return $this->belongsToMany('\App\Models\Usuario')->withTimestamps();
+    }
+
+
 }

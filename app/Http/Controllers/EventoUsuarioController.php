@@ -4,28 +4,29 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
-use App\Models\Requisito;
+use App\Models\Evento;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class RequisitoController extends Controller
+class EventoUsuarioController extends Controller
 {
-    const MODEL = "App\Models\Requisito";
+    const MODEL = "App\Models\Evento";
+
     use RESTActions;
 
-    public function RequisitoUsuario(Request $request) {
+    public function store(Request $request) {
         try {
             $input = $request->all();
 
             $rules = [
                 'usuario_id' => 'required',
-                'requisito_id' => 'required'
+                'evento_id' => 'required'
             ];
             $messages = [
                 'usuario_id.required'    => 'Informe o Id do usuário',
-                'requisito_id.required'    => 'Informe o Id do requisito',
+                'evento_id.required'    => 'Informe o Id do evento',
             ];
 
             $validar = Validator::make($input, $rules, $messages);
@@ -33,17 +34,15 @@ class RequisitoController extends Controller
             if ($validar->fails())
                 return response()->json($validar->errors(), $this->statusCodes['error']);
 
-            $requisito = Requisito::find($input['requisito_id']);
-            if (!$requisito)
-                return response()->json("Requisito não encontrado", $this->statusCodes['error']);
+            $evento = Evento::find($input['evento_id']);
+            if (!$evento)
+                return response()->json("Evento {$input['evento_id']} não encontrado", $this->statusCodes['error']);
 
             $usuario = Usuario::find($input['usuario_id']);
             if (!$usuario)
-                return response()->json("Usuário não encontrado", $this->statusCodes['error']);
+                return response()->json("Usuário {$input['usuario_id']} não encontrado", $this->statusCodes['error']);
 
-            $requisito->usuarios()->save($usuario);
 
-            return $this->respond('done');
 
 
         } catch (Exception $ex) {

@@ -59,6 +59,15 @@ class Usuario extends Authenticatable
         return $this->hasMany('App\Models\Evento');
     }
 
+    public function participando()
+    {
+        return $this->belongsToMany('\App\Models\Evento')->withTimestamps();
+    }
+
+    public function requisitos()
+    {
+        return $this->belongsToMany('\App\Models\Requisitos')->withTimestamps();
+    }
 
 
 

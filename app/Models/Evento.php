@@ -56,4 +56,9 @@ class Evento extends Model
     {
         return $this->hasMany('App\Models\Requisito');
     }
+
+    public function participantes()
+    {
+        return $this->belongsToMany('\App\Models\Usuario')->withTimestamps();
+    }
 }
