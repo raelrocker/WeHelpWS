@@ -55,7 +55,7 @@ class EventoController extends Controller
     public function show($id)
     {
         try {
-            $evento  = Evento::with(['usuario', 'categoria'])->find($id);
+            $evento  = Evento::with(['usuario', 'categoria', 'requisitos'])->find($id);
             if(is_null($evento)){
                 return $this->respond('not_found');
             }
@@ -69,7 +69,7 @@ class EventoController extends Controller
     public function index()
     {
         try {
-            $e = Evento::with(['usuario', 'categoria']);
+            $e = Evento::with(['usuario', 'categoria', 'requisitos']);
             return $this->respond('done', $e->get());
         } catch (Exception $ex) {
             return $this->respond('erro', $ex->getMessage());
@@ -89,7 +89,7 @@ class EventoController extends Controller
                 return $this->respond('not_found');
             }
             $model->update($request->all());
-            $data = Evento::with(['usuario', 'categoria'])->find($model->id);
+            $data = Evento::with(['usuario', 'categoria', 'requisitos'])->find($model->id);
             return $this->respond('done', $data);
         } catch (Exception $ex) {
             return $this->respond('erro', $ex->getMessage());

@@ -19,7 +19,7 @@ class DefaultController extends Controller
      */
     public function __construct()
     {
-        $this->client = DB::table('oauth_clients')->where('id', 5)->first();
+        $this->client = DB::table('oauth_clients')->where('id', 1)->first();
     }
 
     /**

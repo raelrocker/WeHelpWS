@@ -113,7 +113,8 @@ class OngController extends Controller
                 return $this->respond('not_found');
             }
             $model->update($request->all());
-            return $this->respond('done', $model);
+            $data = Ong::with('usuario')->find($model->id);
+            return $this->respond('done', $data);
         } catch (Exception $ex) {
             return $this->respond('erro', $ex->getMessage());
         }
