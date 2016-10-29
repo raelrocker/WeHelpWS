@@ -5,6 +5,7 @@ namespace App\Models;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
 
 class Usuario extends Authenticatable
 {
@@ -68,6 +69,7 @@ class Usuario extends Authenticatable
     {
         return $this->belongsToMany('\App\Models\Requisitos')->withTimestamps();
     }
+
 
 
 
