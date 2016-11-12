@@ -131,4 +131,12 @@ class EventoController extends Controller
             return $this->respond('error', ['message' => $ex->getMessage()]);
         }
     }
+
+    public function EventosPorPerimetro(Request $request)
+    {
+        $input = $request->all();
+        $evento = new Evento();
+        $eventos = $evento->getByPerimeter($input['lat'], $input['lng'], $input['perimetro']);
+        return $this->respond('done', $eventos);
+    }
 }

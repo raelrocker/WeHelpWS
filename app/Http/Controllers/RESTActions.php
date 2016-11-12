@@ -16,7 +16,7 @@ trait RESTActions {
         'not_found' => 404,
         'conflict' => 409,
         'permissions' => 401,
-        'error' => 500
+        'error' => 400
     ];
 
     public function index()

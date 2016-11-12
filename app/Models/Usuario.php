@@ -11,8 +11,6 @@ class Usuario extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
-    public $incrementing = false;
-
     /**
      * The attributes that are mass assignable.
      *

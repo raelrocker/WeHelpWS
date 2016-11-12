@@ -30,4 +30,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('adicionar_participante', 'EventoController@AdicionarParticipante');
     Route::post('usuario_requisito', 'RequisitoController@RequisitoUsuario');
     Route::get('usuarios', 'UsuarioController@get');
+    Route::get('eventos_por_perimetro', 'EventoController@EventosPorPerimetro');
 });

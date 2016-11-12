@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Evento extends Model
 {
@@ -60,5 +61,28 @@ class Evento extends Model
     public function participantes()
     {
         return $this->belongsToMany('\App\Models\Usuario')->withTimestamps();
+    }
+
+    public function getByPerimeter($lat, $lng, $perimeter)
+    {
+        $e = DB::select("SELECT
+                                  id, (
+                                    6371 * acos (
+                                      cos ( radians(?) )
+                                      * cos( radians( lat ) )
+                                      * cos( radians( lng ) - radians(?) )
+                                      + sin ( radians(?) )
+                                      * sin( radians( lat ) )
+                                    )
+                                  ) AS distance
+                                FROM eventos
+                                GROUP BY id, distance
+                                HAVING distance < ?
+                                ORDER BY distance
+                                LIMIT 0 , 20;", [$lat, $lng, $lat, $perimeter]);
+
+        foreach ($e as $evento)
+            $eventos[] = Evento::with(['categoria', 'requisitos'])->find($evento->id);
+        return $eventos;
     }
 }

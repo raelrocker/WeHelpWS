@@ -42,9 +42,11 @@ class PessoaController extends Controller
             // commit nas alterações
             DB::commit();
 
-            $data = Pessoa::with('usuario')->find($pessoa->id);
+            $data =  Usuario::with(['pessoa'])->where('id', $usuario->id)->first();
+
             return response()->json($data, $this->statusCodes['created']);
         } catch (Exception $ex) {
+            DB::rollback();
             return $this->respond('error', ['message' => $ex->getMessage()]);
         }
     }

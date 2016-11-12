@@ -64,7 +64,7 @@ class OngController extends Controller
             // commit nas alterações
             DB::commit();
 
-            $data = Ong::with('usuario')->find($ong->id);
+            $data =  Usuario::with(['ong'])->where('id', $usuario->id)->first();
             return response()->json($data, $this->statusCodes['created']);
         } catch (Exception $ex) {
             return $this->respond('error', ['message' => $ex->getMessage()]);
