@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\DB;
 
 class Evento extends Model
 {
-    protected $fillable = ['categoria_id', 'usuario_id', 'pais', 'uf', 'cidade', 'rua', 'numero', 'complemento', 'cep',
+    protected $fillable = ['nome', 'categoria_id', 'usuario_id', 'pais', 'uf', 'cidade', 'rua', 'numero', 'complemento', 'cep',
                            'bairro', 'lat', 'lng', 'descricao', 'data_inicio', 'data_fim', 'ranking', 'status', 'certificado'];
 
     public static $rules = [
+        'nome' => 'required',
         'pais' => 'required',
         'uf' => 'required',
         'cidade' => 'required',
@@ -26,6 +27,7 @@ class Evento extends Model
         'cep' => 'required'
     ];
     public static $messages = [
+        'nome.required'    => 'Informe o nome',
         'categoria_id.required'    => 'Informe a categoria',
         'usuario_id.required'    => 'Informe o usuario',
         'pais.required'    => 'Informe o país',

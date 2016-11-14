@@ -65,7 +65,6 @@ class EventoController extends Controller
         }
     }
 
-
     public function index()
     {
         try {
@@ -75,7 +74,6 @@ class EventoController extends Controller
             return $this->respond('erro', $ex->getMessage());
         }
     }
-
 
     public function update(Request $request, $id)
     {
