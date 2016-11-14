@@ -28,6 +28,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('comentarios', 'ComentarioController', ['except' => ['destroy']]);
     Route::resource('requisitos', 'RequisitoController', ['except' => ['destroy']]);
     Route::post('adicionar_participante', 'EventoController@AdicionarParticipante');
+    Route::post('remover_participante', 'EventoController@RemoverParticipante');
     Route::post('usuario_requisito', 'RequisitoController@RequisitoUsuario');
     Route::get('usuarios', 'UsuarioController@get');
     Route::get('eventos_por_perimetro', 'EventoController@EventosPorPerimetro');

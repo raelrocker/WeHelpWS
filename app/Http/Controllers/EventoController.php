@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Evento;
 use App\Models\Usuario;
@@ -122,9 +123,53 @@ class EventoController extends Controller
 
             $evento->participantes()->save($usuario);
 
-            return $this->respond('done');
+            return $this->respond('done', ['message' => 'ok']);
 
 
+        } catch (QueryException $ex) {
+            $msg = $ex->getMessage();
+            if (strpos($msg, 'Duplicate entry') !== false)
+                $msg = "Usuário já está participando deste evento";
+            return $this->respond('error', ['message' => $msg]);
+        } catch (Exception $ex) {
+            return $this->respond('error', ['message' => $ex->getMessage()]);
+        }
+    }
+
+    public function RemoverParticipante(Request $request) {
+        try {
+            $input = $request->all();
+
+            $rules = [
+                'usuario_id' => 'required',
+                'evento_id' => 'required'
+            ];
+            $messages = [
+                'usuario_id.required'    => 'Informe o Id do usuário',
+                'evento_id.required'    => 'Informe o Id do evento',
+            ];
+
+            $validar = Validator::make($input, $rules, $messages);
+            // Se falhar, retorna mensagens de erro
+            if ($validar->fails())
+                return response()->json($validar->errors(), $this->statusCodes['error']);
+
+            $evento = Evento::find($input['evento_id']);
+            if (!$evento)
+                return response()->json("Evento não encontrado", $this->statusCodes['error']);
+
+            $usuario = Usuario::find($input['usuario_id']);
+            if (!$usuario)
+                return response()->json("Usuário não encontrado", $this->statusCodes['error']);
+
+            $evento->participantes()->detach($usuario->id);
+
+            return $this->respond('done', ['message' => 'ok']);
+
+
+        } catch (QueryException $ex) {
+            $msg = $ex;
+            return $this->respond('error', ['message' => $msg]);
         } catch (Exception $ex) {
             return $this->respond('error', ['message' => $ex->getMessage()]);
         }
