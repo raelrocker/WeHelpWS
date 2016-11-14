@@ -66,10 +66,28 @@ class EventoController extends Controller
         }
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $e = Evento::with(['usuario', 'categoria', 'requisitos']);
+            $condicao = [];
+            $input = $request->all();
+
+            if (isset($input['participante_id']))
+                $e = Evento::with(['usuario', 'categoria', 'requisitos'])
+                    ->whereHas('participantes', function($q)
+                    {
+                        $q->where('usuario_id', '=', 11);
+                    });
+            else
+                $e = Evento::with(['usuario', 'categoria', 'requisitos']);
+            if (isset($input['cidade']))
+                $condicao['cidade'] = $input['cidade'];
+            if (isset($input['rua']))
+                $condicao['rua'] = $input['rua'];
+            if (isset($input['usuario_id']))
+                $condicao['usuario_id'] = $input['usuario_id'];
+            $e->where($condicao);
+
             return $this->respond('done', $e->get());
         } catch (Exception $ex) {
             return $this->respond('erro', $ex->getMessage());
