@@ -16,15 +16,12 @@ class Evento extends Model
         'uf' => 'required',
         'cidade' => 'required',
         'rua' => 'required',
-        'bairro' => 'required',
         'lat' => 'required',
         'lng' => 'required',
         'descricao' => 'required',
         'data_inicio' => 'required',
-        'data_fim' => 'required',
         'usuario_id' => 'required',
-        'categoria_id' => 'required',
-        'cep' => 'required'
+        'categoria_id' => 'required'
     ];
     public static $messages = [
         'nome.required'    => 'Informe o nome',
@@ -34,15 +31,11 @@ class Evento extends Model
         'uf.required'    => 'Informe o estado',
         'cidade.required'    => 'Informe a cidade',
         'rua.required'    => 'Informe a rua',
-        'bairro.required'    => 'Informe o bairro',
         'lat.required'    => 'Informe a latitude',
         'lng.required'    => 'Informe a longitude',
         'descricao.required'    => 'Informe a descrição',
         'data_inicio.required'    => 'Informe a data e hora do início',
-        'data_fim.required'    => 'Informe a data e hora do fim',
-        'usuario_id.required'    => 'Informe o id do usuário',
-        'categoria_id.required'    => 'Informe o id da categoria',
-        'cep.required'    => 'Informe o CEP'
+        'usuario_id.required'    => 'Informe o id do usuário'
     ];
 
     public function categoria()
@@ -78,13 +71,20 @@ class Evento extends Model
                                     )
                                   ) AS distance
                                 FROM eventos
+                                WHERE data_inicio > CURRENT_DATE()
                                 GROUP BY id, distance
                                 HAVING distance < ?
                                 ORDER BY distance
                                 LIMIT 0 , 20;", [$lat, $lng, $lat, $perimeter]);
 
-        foreach ($e as $evento)
-            $eventos[] = Evento::with(['categoria', 'requisitos'])->find($evento->id);
+        $i = 0;
+        foreach ($e as $evento) {
+            $evento = Evento::with(['categoria', 'requisitos'])->find($evento->id);
+            $evento['numero_participantes'] = $evento->participantes()->count();
+            $eventos[$i] = $evento;
+            $i++;
+        }
         return $eventos;
     }
+
 }
