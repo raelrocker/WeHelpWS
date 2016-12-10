@@ -10,6 +10,8 @@ class Evento extends Model
     protected $fillable = ['nome', 'categoria_id', 'usuario_id', 'pais', 'uf', 'cidade', 'rua', 'numero', 'complemento', 'cep',
                            'bairro', 'lat', 'lng', 'descricao', 'data_inicio', 'data_fim', 'ranking', 'status', 'certificado'];
 
+    protected $dates = ['data_inicio'];
+
     public static $rules = [
         'nome' => 'required',
         'pais' => 'required',
@@ -71,13 +73,14 @@ class Evento extends Model
                                     )
                                   ) AS distance
                                 FROM eventos
-                                WHERE data_inicio > CURRENT_DATE()
+                                WHERE DATE_ADD(data_inicio, INTERVAL 1 HOUR) >= NOW()
                                 GROUP BY id, distance
                                 HAVING distance < ?
                                 ORDER BY distance
                                 LIMIT 0 , 20;", [$lat, $lng, $lat, $perimeter]);
 
         $i = 0;
+        $eventos = array();
         foreach ($e as $evento) {
             $evento = Evento::with(['categoria', 'requisitos'])->find($evento->id);
             $evento['numero_participantes'] = $evento->participantes()->count();

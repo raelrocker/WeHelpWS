@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ParticipacaoEmail;
+use App\Mail\CriadorEmail;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Evento;
@@ -13,6 +15,8 @@ use App\Models\Pessoa;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use Mockery\CountValidator\Exception;
 
 class EventoController extends Controller
 {
@@ -74,9 +78,9 @@ class EventoController extends Controller
 
             if (isset($input['participante_id']))
                 $e = Evento::with(['usuario', 'categoria', 'requisitos'])
-                    ->whereHas('participantes', function($q)
+                    ->whereHas('participantes', function($q) use ($input)
                     {
-                        $q->where('usuario_id', '=', 11);
+                        $q->where('usuario_id', '=', $input['participante_id']);
                     });
             else
                 $e = Evento::with(['usuario', 'categoria', 'requisitos']);
@@ -131,6 +135,8 @@ class EventoController extends Controller
             if ($validar->fails())
                 return response()->json($validar->errors(), $this->statusCodes['error']);
 
+            DB::beginTransaction();
+
             $evento = Evento::find($input['evento_id']);
             if (!$evento)
                 return response()->json("Evento não encontrado", $this->statusCodes['error']);
@@ -141,6 +147,24 @@ class EventoController extends Controller
 
             $evento->participantes()->save($usuario);
 
+            if (isset($input['requisitos'])) {
+                for ($i = 0; $i < count($input['requisitos']); $i++) {
+                    $requisito = Requisito::find($input['requisitos'][$i]['requisito_id']);
+                    if (!$requisito)
+                        continue;
+                    $usuario = Usuario::find($input['requisitos'][$i]['usuario_id']);
+                    if (!$usuario)
+                        continue;
+                    $requisito->usuarios()->save($usuario);
+                }
+            }
+
+            DB::commit();
+            try {
+                Mail::to($usuario->email)->send(new ParticipacaoEmail($evento, $usuario));
+                Mail::to($evento->usuario->email)->send(new CriadorEmail($evento, $usuario, 'TESTE DDDDDDD'));
+            } catch (Exception $ex) {}
+
             return $this->respond('done', ['message' => 'ok']);
 
 
@@ -148,8 +172,10 @@ class EventoController extends Controller
             $msg = $ex->getMessage();
             if (strpos($msg, 'Duplicate entry') !== false)
                 $msg = "Usuário já está participando deste evento";
+            DB::rollback();
             return $this->respond('error', ['message' => $msg]);
         } catch (Exception $ex) {
+            DB::rollback();
             return $this->respond('error', ['message' => $ex->getMessage()]);
         }
     }
