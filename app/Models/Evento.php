@@ -52,7 +52,7 @@ class Evento extends Model
 
     public function requisitos()
     {
-        return $this->hasMany('App\Models\Requisito');
+        return $this->hasMany('App\Models\Requisito')->with(['usuarios']);
     }
 
     public function participantes()

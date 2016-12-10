@@ -156,6 +156,8 @@ class EventoController extends Controller
                     if (!$usuario)
                         continue;
                     $requisito->usuarios()->save($usuario);
+                    $requisito->usuarios()->updateExistingPivot($usuario->id, ['quant' => $input['requisitos'][$i]['quant'], 'un' => $input['requisitos'][$i]['un']]);
+
                 }
             }
 
@@ -163,6 +165,7 @@ class EventoController extends Controller
             try {
                 Mail::to($usuario->email)->send(new ParticipacaoEmail($evento, $usuario));
                 Mail::to($evento->usuario->email)->send(new CriadorEmail($evento, $usuario, 'TESTE DDDDDDD'));
+
             } catch (Exception $ex) {}
 
             return $this->respond('done', ['message' => 'ok']);
