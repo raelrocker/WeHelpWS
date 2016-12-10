@@ -155,8 +155,8 @@ class EventoController extends Controller
                     $usuario = Usuario::find($input['requisitos'][$i]['usuario_id']);
                     if (!$usuario)
                         continue;
-                    $requisito->usuarios()->save($usuario);
-                    $requisito->usuarios()->updateExistingPivot($usuario->id, ['quant' => $input['requisitos'][$i]['quant'], 'un' => $input['requisitos'][$i]['un']]);
+                    $requisito->usuariosRequisito()->save($usuario);
+                    $requisito->usuariosRequisito()->updateExistingPivot($usuario->id, ['quant' => $input['requisitos'][$i]['quant'], 'un' => $input['requisitos'][$i]['un']]);
 
                 }
             }

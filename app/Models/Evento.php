@@ -52,7 +52,7 @@ class Evento extends Model
 
     public function requisitos()
     {
-        return $this->hasMany('App\Models\Requisito')->with(['usuarios']);
+        return $this->hasMany('App\Models\Requisito')->with(['usuariosRequisito']);
     }
 
     public function participantes()
@@ -82,7 +82,7 @@ class Evento extends Model
         $i = 0;
         $eventos = array();
         foreach ($e as $evento) {
-            $evento = Evento::with(['categoria', 'requisitos'])->find($evento->id);
+            $evento = Evento::with(['categoria', 'requisitos', 'participantes'])->find($evento->id);
             $evento['numero_participantes'] = $evento->participantes()->count();
             $eventos[$i] = $evento;
             $i++;

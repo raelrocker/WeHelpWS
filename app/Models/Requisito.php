@@ -26,9 +26,9 @@ class Requisito extends Model
         return $this->belongsTo('App\Models\Evento', 'evento_id');
     }
 
-    public function usuarios()
+    public function usuariosRequisito()
     {
-        return $this->belongsToMany('\App\Models\Usuario')->withTimestamps()->withPivot('quant', 'un');
+        return $this->belongsToMany('\App\Models\Usuario')->withTimestamps()->withPivot('quant as quant', 'un as un');
     }
 
 

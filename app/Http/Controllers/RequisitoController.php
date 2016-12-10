@@ -41,8 +41,8 @@ class RequisitoController extends Controller
             if (!$usuario)
                 return response()->json("Usuário não encontrado", $this->statusCodes['error']);
 
-            $requisito->usuarios()->save($usuario);
-            $requisito->usuarios()->updateExistingPivot($usuario->id, ['quant' => $input['quant'], 'un' => $input['un']]);
+            $requisito->usuariosRequisito()->save($usuario);
+            $requisito->usuariosRequisito()->updateExistingPivot($usuario->id, ['quant' => $input['quant'], 'un' => $input['un']]);
             return $this->respond('done');
 
 
