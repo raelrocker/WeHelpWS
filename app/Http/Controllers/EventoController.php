@@ -146,25 +146,26 @@ class EventoController extends Controller
                 return response()->json("Usuário não encontrado", $this->statusCodes['error']);
 
             $evento->participantes()->save($usuario);
-
+            $requisitosMarcados = [];
             if (isset($input['requisitos'])) {
                 for ($i = 0; $i < count($input['requisitos']); $i++) {
                     $requisito = Requisito::find($input['requisitos'][$i]['requisito_id']);
                     if (!$requisito)
                         continue;
-                    $usuario = Usuario::find($input['requisitos'][$i]['usuario_id']);
-                    if (!$usuario)
-                        continue;
                     $requisito->usuariosRequisito()->save($usuario);
                     $requisito->usuariosRequisito()->updateExistingPivot($usuario->id, ['quant' => $input['requisitos'][$i]['quant'], 'un' => $input['requisitos'][$i]['un']]);
-
+                    $requisitosMarcados[$i]['descricao'] = $requisito->descricao;
+                    $requisitosMarcados[$i]['quant'] = $input['requisitos'][$i]['quant'];
+                    $requisitosMarcados[$i]['un'] = $input['requisitos'][$i]['un'];
                 }
             }
 
             DB::commit();
+
             try {
-                Mail::to($usuario->email)->send(new ParticipacaoEmail($evento, $usuario));
-                Mail::to($evento->usuario->email)->send(new CriadorEmail($evento, $usuario, 'TESTE DDDDDDD'));
+
+                $this->EnviarEmail($usuario->email, 'Evento: ' . $evento->nome, $this->MontarEmailParticipar($evento, $usuario, $requisitosMarcados));
+                $this->EnviarEmail($usuario->email, 'Evento: ' . $evento->nome, $this->MontarEmailCriador($evento, $usuario, $requisitosMarcados, ""));
 
             } catch (Exception $ex) {}
 
@@ -211,6 +212,8 @@ class EventoController extends Controller
 
             $evento->participantes()->detach($usuario->id);
 
+            $usuario->requisitos()->detach();
+
             return $this->respond('done', ['message' => 'ok']);
 
 
@@ -228,5 +231,77 @@ class EventoController extends Controller
         $evento = new Evento();
         $eventos = $evento->getByPerimeter($input['lat'], $input['lng'], $input['perimetro']);
         return $this->respond('done', $eventos);
+    }
+
+    private function EnviarEmail($to, $subject, $message)
+    {
+        $mail = new \PHPMailer(true);
+        try {
+            $mail->isSMTP(); // tell to use smtp
+            $mail->CharSet = "utf-8"; // set charset to utf8
+            $mail->SMTPAuth = true;  // use smpt auth
+            $mail->SMTPSecure = "ssl"; // or ssl
+            $mail->Host = "smtp.gmail.com"; //"smtp-mail.outlook.com";
+            $mail->Port = 465; // most likely something different for you. This is the mailtrap.io port i use for testing.
+            $mail->Username = "wehelpapplication@gmail.com";
+            $mail->Password = "padremarcos";
+
+            $mail->setFrom("wehelpapplication@outlook.com", "We Help APP");
+            $mail->Subject = $subject;
+            $mail->MsgHTML($message);
+            $mail->addAddress($to, "");
+            $mail->smtpConnect(
+                array(
+                    "ssl" => array(
+                        "verify_peer" => false,
+                        "verify_peer_name" => false,
+                        "allow_self_signed" => true
+                    )
+                )
+            );
+            $mail->send();
+        } catch (phpmailerException $e) {
+            dd($e);
+            return false;
+        } catch (Exception $e) {
+            dd($e);
+            return false;
+        }
+
+        return true;
+    }
+
+    private function MontarEmailParticipar($evento, $participante, $requisitosMarcados)
+    {
+        $mensagem = "<h1>WE HELP APP</h1>
+            <h2>Olá," .  ($participante->pessoa_id > 0 ? $participante->pessoa->nome : $participante->ong->nome)
+            . "</h2><p>Você está participando do evento:</p><p>{$evento->nome}</p><p>Data: " . $evento->data_inicio->format('d/m/Y')
+            . "</p><p>Endereço: {$evento->rua}, {$evento->numero} " . ($evento->complemento ? ", {$evento->complemento}" : "")
+            . ", {$evento->cidade}, {$evento->uf}</p>"
+            . "--------------"
+            . "<p>Você se comprometeu com os seguintes requisitos</p><ul>";
+        for ($i = 0; $i < count($requisitosMarcados); $i++)
+            $mensagem .= "<li>{$requisitosMarcados[$i]['quant']} {$requisitosMarcados[$i]['un']} - {$requisitosMarcados[$i]['descricao']}</li>";
+        $mensagem .= "</ul>";
+
+        return $mensagem;
+    }
+
+    private function MontarEmailCriador($evento, $participante, $requisitosMarcados, $mensagemUsuario)
+    {
+        $mensagem = "<h1>WE HELP APP</h1><h2>Olá, " . ($evento->usuario->pessoa_id > 0 ? $evento->usuario->pessoa->nome : $evento->usuario->ong->nome)
+        . "</h2><p>O usuário " . ($participante->pessoa_id > 0 ? $participante->pessoa->nome : $participante->ong->nome)
+        . " está participando do evento <strong>{$evento->nome}</strong></p>"
+        . "----------------"
+        . "<p>O usuário se comprometeu com os seguintes requisitos</p><ul>";
+        for ($i = 0; $i < count($requisitosMarcados); $i++)
+            $mensagem .= "<li>{$requisitosMarcados[$i]['quant']} {$requisitosMarcados[$i]['un']} - {$requisitosMarcados[$i]['descricao']}</li>";
+
+        $mensagem .= "</ul>";
+
+        if ($mensagemUsuario)
+            $mensagem .= "<p>Mensagem do usuário</p><p><strong>{$mensagemUsuario}</strong></p>";
+
+        return $mensagem;
     }
 }

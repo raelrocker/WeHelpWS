@@ -65,7 +65,7 @@ class Usuario extends Authenticatable
 
     public function requisitos()
     {
-        return $this->belongsToMany('\App\Models\Requisitos')->withTimestamps();
+        return $this->belongsToMany('\App\Models\Requisito')->withTimestamps();
     }
 
 
