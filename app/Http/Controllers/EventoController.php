@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Mockery\CountValidator\Exception;
+use Carbon\Carbon;
 
 class EventoController extends Controller
 {
@@ -77,20 +78,20 @@ class EventoController extends Controller
             $input = $request->all();
 
             if (isset($input['participante_id']))
-                $e = Evento::with(['usuario', 'categoria', 'requisitos'])
+                $e = Evento::with(['usuario', 'categoria', 'requisitos', 'participantes'])
                     ->whereHas('participantes', function($q) use ($input)
                     {
-                        $q->where('usuario_id', '=', $input['participante_id']);
+                        $q->where('usuario_id', '=', $input['participante_id'])->orderBy('data_inicio');
                     });
             else
-                $e = Evento::with(['usuario', 'categoria', 'requisitos']);
+                $e = Evento::with(['usuario', 'categoria', 'requisitos', 'participantes']);
             if (isset($input['cidade']))
                 $condicao['cidade'] = $input['cidade'];
             if (isset($input['rua']))
                 $condicao['rua'] = $input['rua'];
             if (isset($input['usuario_id']))
                 $condicao['usuario_id'] = $input['usuario_id'];
-            $e->where($condicao);
+            $e->where($condicao)->orderBy('data_inicio');
 
             return $this->respond('done', $e->get());
         } catch (Exception $ex) {
@@ -145,39 +146,76 @@ class EventoController extends Controller
             if (!$usuario)
                 return response()->json("Usuário não encontrado", $this->statusCodes['error']);
 
-            $evento->participantes()->save($usuario);
+            try {
+                $evento->participantes()->save($usuario);
+            } catch (QueryException $ex) {
+                $msg = $ex->getMessage();
+                if (strpos($msg, 'Duplicate entry') === false) {
+                    DB::rollback();
+                    return $this->respond('error', ['message' => $msg]);
+                }
+            }
             $requisitosMarcados = [];
+            $usuario->requisitos()->newPivotStatement()->where('evento_id',$evento->id)->where('usuario_id', $usuario->id)->delete();
             if (isset($input['requisitos'])) {
+
                 for ($i = 0; $i < count($input['requisitos']); $i++) {
                     $requisito = Requisito::find($input['requisitos'][$i]['requisito_id']);
                     if (!$requisito)
                         continue;
-                    $requisito->usuariosRequisito()->save($usuario);
-                    $requisito->usuariosRequisito()->updateExistingPivot($usuario->id, ['quant' => $input['requisitos'][$i]['quant'], 'un' => $input['requisitos'][$i]['un']]);
-                    $requisitosMarcados[$i]['descricao'] = $requisito->descricao;
-                    $requisitosMarcados[$i]['quant'] = $input['requisitos'][$i]['quant'];
-                    $requisitosMarcados[$i]['un'] = $input['requisitos'][$i]['un'];
+                    try {
+                        $requisito->usuariosRequisito()->save($usuario);
+                        $requisitosMarcados[$i]['descricao'] = $requisito->descricao;
+                        $requisitosMarcados[$i]['quant'] = $input['requisitos'][$i]['quant'];
+                        $requisitosMarcados[$i]['un'] = $input['requisitos'][$i]['un'];
+                    } catch (QueryException $ex) {
+                        $msg = $ex->getMessage();
+                        if (strpos($msg, 'Duplicate entry') === false) {
+                            DB::rollback();
+                            return $this->respond('error', ['message' => $msg]);
+                        }
+                    }
+                    try {
+                        $requisito->usuariosRequisito()->updateExistingPivot($usuario->id, ['quant' => $input['requisitos'][$i]['quant'], 'un' => $input['requisitos'][$i]['un'], 'evento_id' => $evento->id]);
+                    } catch (Exception $ex) {}
                 }
             }
 
             DB::commit();
 
             try {
+                $when = Carbon::now()->addMinutes(2);
+                $when2 = Carbon::now()->addMinutes(3);
+                /*
+                Mail::later(10, 'mails.participacaoEmail', ['evento' => $evento, 'participante' => $usuario, 'requisitosMarcados' => $requisitosMarcados], function($message) use ($usuario, $evento)
+                {
+                    $message->to($usuario->email)->subject('Evento: ' . $evento->nome);
+                });
+                Mail::later(20, 'mails.criadorEmail', ['evento' => $evento, 'participante' => $usuario, 'requisitosMarcados' => $requisitosMarcados, 'mensagem' => ""], function($message) use ($usuario, $evento)
+                {
+                    $message->to($usuario->email)->subject('Evento: ' . $evento->nome);
+                });
 
-                $this->EnviarEmail($usuario->email, 'Evento: ' . $evento->nome, $this->MontarEmailParticipar($evento, $usuario, $requisitosMarcados));
-                $this->EnviarEmail($usuario->email, 'Evento: ' . $evento->nome, $this->MontarEmailCriador($evento, $usuario, $requisitosMarcados, ""));
+                Mail::to($usuario->email)
+                    ->send(new ParticipacaoEmail($evento, $usuario, $requisitosMarcados));
+                Mail::to($usuario->email)
+                    ->send(new CriadorEmail($evento, $usuario, $requisitosMarcados, ""));
+                */
+                //$this->EnviarEmail($usuario->email, 'Evento: ' . $evento->nome, $this->MontarEmailParticipar($evento, $usuario, $requisitosMarcados));
+                //$this->EnviarEmail($evento->usuario->email, 'Evento: ' . $evento->nome, $this->MontarEmailCriador($evento, $usuario, $requisitosMarcados, ""));
 
             } catch (Exception $ex) {}
 
             return $this->respond('done', ['message' => 'ok']);
 
-
+        /*
         } catch (QueryException $ex) {
             $msg = $ex->getMessage();
             if (strpos($msg, 'Duplicate entry') !== false)
                 $msg = "Usuário já está participando deste evento";
             DB::rollback();
             return $this->respond('error', ['message' => $msg]);
+        */
         } catch (Exception $ex) {
             DB::rollback();
             return $this->respond('error', ['message' => $ex->getMessage()]);
@@ -237,19 +275,8 @@ class EventoController extends Controller
     {
         $mail = new \PHPMailer(true);
         try {
-            $mail->isSMTP(); // tell to use smtp
-            $mail->CharSet = "utf-8"; // set charset to utf8
-            $mail->SMTPAuth = true;  // use smpt auth
-            $mail->SMTPSecure = "ssl"; // or ssl
-            $mail->Host = "smtp.gmail.com"; //"smtp-mail.outlook.com";
-            $mail->Port = 465; // most likely something different for you. This is the mailtrap.io port i use for testing.
-            $mail->Username = "wehelpapplication@gmail.com";
-            $mail->Password = "padremarcos";
 
-            $mail->setFrom("wehelpapplication@outlook.com", "We Help APP");
-            $mail->Subject = $subject;
-            $mail->MsgHTML($message);
-            $mail->addAddress($to, "");
+            $mail->isSMTP(); // tell to use smtp
             $mail->smtpConnect(
                 array(
                     "ssl" => array(
@@ -259,6 +286,20 @@ class EventoController extends Controller
                     )
                 )
             );
+            $mail->CharSet = "utf-8"; // set charset to utf8
+            $mail->SMTPAuth = true;  // use smpt auth
+            $mail->SMTPSecure = "ssl"; // or ssl
+            $mail->Host = "smtp.gmail.com"; //"smtp-mail.outlook.com";
+            $mail->Port = 465; // most likely something different for you. This is the mailtrap.io port i use for testing.
+            $mail->Username = "wehelpapplication@gmail.com";
+            $mail->Password = "padremarcos";
+
+            $mail->setFrom("wehelpapplication@gmail.com", "We Help APP");
+            $mail->Subject = $subject;
+            $mail->Body = $message;
+            $mail->IsHTML(true);
+            $mail->addAddress($to, "");
+
             $mail->send();
         } catch (phpmailerException $e) {
             dd($e);

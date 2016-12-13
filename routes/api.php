@@ -24,7 +24,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('pessoas', 'PessoaController', ['except' => ['store', 'destroy']]);
     Route::resource('ongs', 'OngController', ['except' => ['store', 'destroy']]);
     Route::resource('categorias', 'CategoriaController', ['except' => ['destroy']]);
-    Route::resource('eventos', 'EventoController', ['except' => ['destroy']]);
+    Route::resource('eventos', 'EventoController');
     Route::resource('comentarios', 'ComentarioController');
     Route::resource('requisitos', 'RequisitoController');
     Route::post('adicionar_participante', 'EventoController@AdicionarParticipante');

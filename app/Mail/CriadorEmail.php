@@ -14,16 +14,18 @@ class CriadorEmail extends Mailable
     public $evento;
     public $participante;
     public $mensagem;
+    public $requisitosMarcados;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($evento, $participante, $mensagem)
+    public function __construct($evento, $participante, $requisitosMarcados, $mensagem)
     {
         $this->evento = $evento;
         $this->participante = $participante;
         $this->mensagem = $mensagem;
+        $this->requisitosMarcados = $requisitosMarcados;
     }
 
     /**
@@ -33,7 +35,7 @@ class CriadorEmail extends Mailable
      */
     public function build()
     {
-        return $this->from('wehelpapplication@gmail.com')
+        return $this->from('wehelpapplication@outlook.com')
             ->subject('Evento: ' . $this->evento->nome)
             ->view('mails.criadorEmail');
     }

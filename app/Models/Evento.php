@@ -76,7 +76,7 @@ class Evento extends Model
                                 WHERE DATE_ADD(data_inicio, INTERVAL 1 HOUR) >= NOW()
                                 GROUP BY id, distance
                                 HAVING distance < ?
-                                ORDER BY distance
+                                ORDER BY data_inicio
                                 LIMIT 0 , 20;", [$lat, $lng, $lat, $perimeter]);
 
         $i = 0;
@@ -89,5 +89,7 @@ class Evento extends Model
         }
         return $eventos;
     }
+
+
 
 }

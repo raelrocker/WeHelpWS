@@ -9,3 +9,13 @@
     @endif
     , {{ $evento->cidade }}, {{$evento->uf}}
 </p>
+
+@if ($requisitosMarcados)
+    "--------------"
+    <p>Você se comprometeu com os seguintes requisitos:</p>
+    <ul>
+        @for ($i = 0; $i < count($requisitosMarcados); $i++)
+            <li>{{$requisitosMarcados[$i]['quant']}} {{$requisitosMarcados[$i]['un']}} - {{$requisitosMarcados[$i]['descricao']}}</li>
+        @endfor
+    </ul>
+@endif

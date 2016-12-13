@@ -79,7 +79,7 @@ trait RESTActions {
                 return $this->respond('not_found');
             }
             $m::destroy($id);
-            return $this->respond('removed');
+            return $this->respond('done', ['message' => 'ok']);
         } catch (Exception $ex) {
             return $this->respond('error', $ex->getMessage());
         }
